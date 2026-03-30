@@ -1,0 +1,150 @@
+<html>
+<head>
+<title>Games list</title>
+<script>
+
+const playerSessionId = "P123456";
+const bet_sum = 10.00;
+
+function Request(request_json, callback_reply) {
+	let xhr = new XMLHttpRequest();
+	xhr.open('POST', '/');
+	xhr.onload = function() {
+		if(xhr.status != 200) callback_reply(null);
+		else {
+			let reply = JSON.parse(xhr.response);
+			console.log(">>R>>  ", reply);
+			callback_reply(reply);
+		}
+	}
+	xhr.onerror = function() {
+		callback_reply(null);
+	};
+	xhr.send(JSON.stringify(request_json));
+	console.log("<<S<<  ", request_json);
+};
+
+function Initialize() {
+	RequestGameList();
+}
+
+function RequestGameList() {
+	let reply_func = function(responce) {
+		if(responce && responce.reply && responce.reply.success && responce.reply.game_list) {
+			for(var g in responce.reply.game_list) {
+				let game_id = responce.reply.game_list[g];
+				document.getElementById("game_list").add(new Option(game_id, game_id));
+			}
+			// select first game in the list:
+			setTimeout(RequestGame, 0);
+		}
+	};
+	let request = {
+		"action": "get_game_list"
+	};
+	Request(request, reply_func);
+}
+
+function RequestGame() {
+	let reply_func = function(responce) {
+		if(responce && responce.reply && responce.reply.success) {
+			// previous comnibation base on session data sent:
+			if(responce.reply.combination) {
+				let combo = JSON.stringify(responce.reply.combination);
+				document.getElementById("combination").innerHTML =
+					combo.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			} else document.getElementById("combination").innerHTML = "&mdash;";
+		}
+	};
+	let request = {
+		"action": "select_game",
+		"session_id": playerSessionId,
+		"session_data": session_data(),
+		"game_id": document.getElementById("game_list").value
+	};
+	Request(request, reply_func);
+}
+
+function RequestCombination() {
+	let reply_func = function(responce) {
+		if(responce && responce.reply && responce.reply.success && responce.reply.combination) {
+			let combo = JSON.stringify(responce.reply.combination);
+			document.getElementById("combination").innerHTML =
+				combo.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			setTimeout(RequestSessionData, 0);
+			// update stats
+			UpdateStatistics(responce.reply.combination.total.bet, responce.reply.combination.total.win);
+			// auto bet
+			if(document.getElementById("auto").checked)
+				setTimeout(RequestCombination, 0);
+		}
+	};
+	let request = {
+		"action": "get_combination",
+		"session_id": playerSessionId,
+		"bet_sum": bet_sum
+	};
+	Request(request, reply_func);
+}
+
+function RequestSessionData() {
+	let reply_func = function(responce) {
+		if(responce && responce.reply && responce.reply.success && responce.reply.session_data) {
+			session_data(responce.reply.session_data);
+		}
+	};
+	let request = {
+		"action": "get_session_data",
+		"session_id": playerSessionId
+	};
+	// TODO: session data storage must be done on backend!
+	// We store it in local storage just for testing purpose.
+	Request(request, reply_func);
+}
+
+function UpdateStatistics(bet, win) {
+	let get = function(key) {
+		return parseFloat(document.getElementById(key).innerHTML);
+	};
+	let add = function(key, value, fix) {
+		document.getElementById(key).innerHTML = Number(get(key) + value).toFixed(fix);
+	};
+	add("bet_count", 1, 0);
+	add("total_bet", bet, 2);
+	add("total_win", win, 2);
+	document.getElementById("rtp").innerHTML = Number(get("total_win")*100/get("total_bet")).toFixed(3);
+}
+
+function session_data(data) {
+	let game = document.getElementById("game_list").value;
+	if("undefined" === typeof data) {
+		data = localStorage.getItem(game+"_session_data");
+	} else {
+		localStorage.setItem(game+"_session_data", data);
+	}
+	return data ? data : "";
+}
+
+</script>
+</head>
+<body bgcolor=white color=black link=blue onload="Initialize()" style="padding:40px">
+
+<p><b>Game list:</b>
+<select id="game_list" onchange="RequestGame()"></select></p>
+
+<p><b>Get combination (make bet):</b><br><br>
+<input type="button" onclick="RequestCombination()" value="Request"> &nbsp;
+<label><input type="checkbox" id="auto" onclick="RequestCombination()"> auto</label>
+</p>
+
+<p><b>Combination:</b><br>
+<div id="combination" style="font-family:monospace; height:3em"></div></p>
+
+<p><b>Statistics:</b><br>
+Bet count: <span id="bet_count">0</span><br>
+Total bet sum: <span id="total_bet">0</span><br>
+Total win sum: <span id="total_win">0</span><br>
+RTP: <span id="rtp">0</span></p>
+
+</body>
+</html>

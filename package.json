@@ -1,0 +1,12 @@
+{
+  "name": "Slot module for RGS",
+  "version": "1.0.0",
+  "description": "The module generates combinations for slot games",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "probity": "^1.2.0"
+  }
+}
