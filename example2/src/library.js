@@ -1,6 +1,6 @@
 const probity = require('probity');
 const storage = require('./storage.js');
-const games = require('./games.js');
+const games = require('../../games/games.js');
 
 let save_timer = 0;
 

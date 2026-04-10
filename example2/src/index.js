@@ -1,0 +1,15 @@
+const library = require('./library.js');
+const server = require('./server.js');
+
+// Load library
+if(!library.load())
+	return console.log("Could not load library");
+
+// start the HTTP server
+server.start(8088);
+
+// save game data and unload library when done.
+// we have infinite waiting for incoming connections,
+// so we never unload library in our scenatio.
+// That is why it's commented out:
+/*library.unload();*/
