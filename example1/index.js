@@ -66,8 +66,8 @@ for(var counter=0; counter < 10; counter++) {
 	const result = probity.action(request_combination);
 	if(result && result.reply && result.reply.success) {
 		// count statistics
-		statistics.total_bet += result.reply.combination.total.bet;
-		statistics.total_win += result.reply.combination.total.win;
+		statistics.total_bet += result.reply.combination.actual.bet;
+		statistics.total_win += result.reply.combination.actual.win;
 		statistics.counter++;
 		// show generated game combination
 		console.log("Combination"+statistics.counter+": ",

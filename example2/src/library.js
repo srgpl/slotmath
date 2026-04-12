@@ -23,8 +23,10 @@ function save_game_data(game) {
 		"game_id": game
 	};
 	let result = module.exports.action(request);
-	if(result && result.reply && result.reply.success)
+	if(result && result.reply && result.reply.success) {
+		storage.set("game", game, result.reply.context)
 		console.log("Game data saved for "+game);
+	}
 }
 
 function save_game_data_all() {
@@ -52,7 +54,7 @@ module.exports = {
 		for(var g in games.definition)
 			load_game(g);
 		// save game data every 15 minutes
-		save_timer = setTimeout(save_game_data_all, 1000*30);
+		save_timer = setTimeout(save_game_data_all, 1000*60*15);
 		return true;
 	},
 	"unload": function() {

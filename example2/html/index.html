@@ -24,6 +24,10 @@ function Request(request_json, callback_reply) {
 	console.log("<<S<<  ", request_json);
 };
 
+function Escape(s) {
+	return s.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function Initialize() {
 	RequestGameList();
 }
@@ -42,6 +46,7 @@ function RequestGameList() {
 	let request = {
 		"action": "get_game_list"
 	};
+	document.getElementById("action").innerHTML = request.action;
 	Request(request, reply_func);
 }
 
@@ -50,11 +55,11 @@ function RequestGame() {
 		if(responce && responce.reply && responce.reply.success) {
 			// previous comnibation base on session data sent:
 			if(responce.reply.combination) {
-				let combo = JSON.stringify(responce.reply.combination);
-				document.getElementById("combination").innerHTML =
-					combo.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+				let combo = JSON.stringify(responce.reply);
+				document.getElementById("combination").innerHTML = Escape(combo);
 			} else document.getElementById("combination").innerHTML = "&mdash;";
-		}
+		} else document.getElementById("combination").innerHTML =
+					"<font color=red>" + Escape(JSON.stringify(responce.reply)) + "</font>";
 	};
 	let request = {
 		"action": "select_game",
@@ -62,28 +67,30 @@ function RequestGame() {
 		"session_data": session_data(),
 		"game_id": document.getElementById("game_list").value
 	};
+	document.getElementById("action").innerHTML = request.action;
 	Request(request, reply_func);
 }
 
 function RequestCombination() {
 	let reply_func = function(responce) {
 		if(responce && responce.reply && responce.reply.success && responce.reply.combination) {
-			let combo = JSON.stringify(responce.reply.combination);
-			document.getElementById("combination").innerHTML =
-				combo.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+			let reply = JSON.stringify(responce.reply);
+			document.getElementById("combination").innerHTML = Escape(reply);
 			setTimeout(RequestSessionData, 0);
 			// update stats
-			UpdateStatistics(responce.reply.combination.total.bet, responce.reply.combination.total.win);
+			UpdateStatistics(responce.reply.combination.actual.bet, responce.reply.combination.actual.win);
 			// auto bet
 			if(document.getElementById("auto").checked)
 				setTimeout(RequestCombination, 0);
-		}
+		} else document.getElementById("combination").innerHTML =
+					"<font color=red>" + Escape(JSON.stringify(responce.reply)) + "</font>";
 	};
 	let request = {
 		"action": "get_combination",
 		"session_id": playerSessionId,
 		"bet_sum": bet_sum
 	};
+	document.getElementById("action").innerHTML = request.action;
 	Request(request, reply_func);
 }
 
@@ -137,8 +144,11 @@ function session_data(data) {
 <label><input type="checkbox" id="auto" onclick="RequestCombination()"> auto</label>
 </p>
 
+<p><b>Action:</b><br>
+<div id="action" style="font-family:monospace; min-height:1em"></div></p>
+
 <p><b>Combination:</b><br>
-<div id="combination" style="font-family:monospace; height:3em"></div></p>
+<div id="combination" style="font-family:monospace; min-height:3em"></div></p>
 
 <p><b>Statistics:</b><br>
 Bet count: <span id="bet_count">0</span><br>
