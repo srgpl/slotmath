@@ -54,10 +54,8 @@ function RequestGame() {
 	let reply_func = function(responce) {
 		if(responce && responce.reply && responce.reply.success) {
 			// previous comnibation base on session data sent:
-			if(responce.reply.combination) {
-				let combo = JSON.stringify(responce.reply);
-				document.getElementById("combination").innerHTML = Escape(combo);
-			} else document.getElementById("combination").innerHTML = "&mdash;";
+			let combo = JSON.stringify(responce.reply);
+			document.getElementById("combination").innerHTML = Escape(combo);
 		} else document.getElementById("combination").innerHTML =
 					"<font color=red>" + Escape(JSON.stringify(responce.reply)) + "</font>";
 	};
@@ -147,7 +145,7 @@ function session_data(data) {
 <p><b>Action:</b><br>
 <div id="action" style="font-family:monospace; min-height:1em"></div></p>
 
-<p><b>Combination:</b><br>
+<p><b>JSON:</b><br>
 <div id="combination" style="font-family:monospace; min-height:3em"></div></p>
 
 <p><b>Statistics:</b><br>

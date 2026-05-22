@@ -12,15 +12,14 @@ if(!probity.load()) {
 }
 
 // Enable logging
-let options_action = {
-	"action": "set_options",
-	"options": {
-		"log": {
-			"stdout": true // default: false
-		}
-	}
+let configuration_action = {
+	"action": "set_configuration",
+	"log": {
+		"stdout": true // default: false
+	},
+	"staging": true // must be removed in production mode
 };
-probity.action(options_action);
+probity.action(configuration_action);
 
 // Load game definitions
 for(var game_id in games.definition) {

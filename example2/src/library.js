@@ -39,17 +39,16 @@ module.exports = {
 		// Load library
 		if(!probity.load())
 			return console.log("Could not load probity");
-		// optional: specify some options:
-		let options_action = {
-			"action": "set_options",
-			"options": {
-				"log": {
-					"file": "/tmp/rgs-math.log", // default: null
-					"stdout": true // default: false
-				}
-			}
+		// optional: specify some configuration:
+		let configuration_action = {
+			"action": "set_configuration",
+			"log": {
+				"file": "/tmp/rgs-math.log", // default: null
+				"stdout": true // default: false
+			},
+			"staging": true
 		};
-		probity.action(options_action);
+		probity.action(configuration_action);
 		// load game definitions
 		for(var g in games.definition)
 			load_game(g);
