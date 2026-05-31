@@ -5,6 +5,7 @@
 
 const playerSessionId = "P123456";
 const bet_sum = 10.00;
+let gameDefinition = null;
 
 function Request(request_json, callback_reply) {
 	let xhr = new XMLHttpRequest();
@@ -53,10 +54,13 @@ function RequestGameList() {
 function RequestGame() {
 	let reply_func = function(responce) {
 		if(responce && responce.reply && responce.reply.success) {
+			gameDefinition = responce.reply.game;
 			// previous comnibation base on session data sent:
 			let combo = JSON.stringify(responce.reply);
-			document.getElementById("combination").innerHTML = Escape(combo);
-		} else document.getElementById("combination").innerHTML =
+			document.getElementById("output_json").innerHTML = Escape(combo);
+			if(responce.reply.combination)
+				showImages(responce.reply.combination.reels);
+		} else document.getElementById("output_json").innerHTML =
 					"<font color=red>" + Escape(JSON.stringify(responce.reply)) + "</font>";
 	};
 	let request = {
@@ -73,14 +77,15 @@ function RequestCombination() {
 	let reply_func = function(responce) {
 		if(responce && responce.reply && responce.reply.success && responce.reply.combination) {
 			let reply = JSON.stringify(responce.reply);
-			document.getElementById("combination").innerHTML = Escape(reply);
+			document.getElementById("output_json").innerHTML = Escape(reply);
 			setTimeout(RequestSessionData, 0);
+			showImages(responce.reply.combination.reels);
 			// update stats
 			UpdateStatistics(responce.reply.combination.actual.bet, responce.reply.combination.actual.win);
 			// auto bet
 			if(document.getElementById("auto").checked)
 				setTimeout(RequestCombination, 0);
-		} else document.getElementById("combination").innerHTML =
+		} else document.getElementById("output_json").innerHTML =
 					"<font color=red>" + Escape(JSON.stringify(responce.reply)) + "</font>";
 	};
 	let request = {
@@ -130,6 +135,19 @@ function session_data(data) {
 	return data ? data : "";
 }
 
+function showImages(reels) {
+	let s = "", game_id = document.getElementById("game_list").value;
+	if(reels) {
+		for(let y=0; y<gameDefinition.layout.height; y++) {
+			for(let x=0; x<gameDefinition.layout.width; x++) {
+				s += "<span title="+reels[x][y]+" style='width:64px; height:64px; background-image:url("+game_id+".gif); background-position:"+(64*(reels[x][y]-1))+"px 0px; display:inline-block'></span>";
+			}
+			s += "<br>";
+		}
+	}
+	document.getElementById("images").innerHTML = s;
+}
+
 </script>
 </head>
 <body bgcolor=white color=black link=blue onload="Initialize()" style="padding:40px">
@@ -146,7 +164,8 @@ function session_data(data) {
 <div id="action" style="font-family:monospace; min-height:1em"></div></p>
 
 <p><b>JSON:</b><br>
-<div id="combination" style="font-family:monospace; min-height:3em"></div></p>
+<div id="images" style="display:inline-block; float:right; background:#fff;"></div>
+<div id="output_json" style="font-family:monospace; min-height:3em"></div></p>
 
 <p><b>Statistics:</b><br>
 Bet count: <span id="bet_count">0</span><br>

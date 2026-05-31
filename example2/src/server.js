@@ -8,6 +8,7 @@ function simple_server(port)
 		switch(ext) {
 			case "ico": return "image/icon";
 			case "png": return "image/png";
+			case "gif": return "image/gif";
 			case "js": return "application/javascript";
 			case "json": return "application/json";
 		}
@@ -16,13 +17,13 @@ function simple_server(port)
 	const server = http.createServer((req, res) => {
 		// simple HTTP server
 		if(req.method === 'GET')
-		{	let m = req.url.match(/^[\/]*(\w+)\.(html|png|ico|js|json)$/);
+		{	let m = req.url.match(/^[\/]*(\w+)\.(html|png|gif|ico|js|json)$/);
 			let requested_file = (m && m.length) ? (m[1]+"."+m[2]) : Math.random().toString();
 			let file_path = path.join(__dirname, "..", "html", requested_file);
 			//console.log("GET request: ", req.url);
 			const data = fs.readFile(file_path, {}, (err, data) => {
 				if(err) {
-					res.writeHead(301, {'Location': '/index.html'});
+					res.writeHead(301, {'Location': '/index.html?404'});
 					res.end("");
 					return;
 				}
