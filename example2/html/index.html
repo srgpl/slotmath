@@ -140,7 +140,8 @@ function showImages(reels) {
 	if(reels) {
 		for(let y=0; y<gameDefinition.layout.height; y++) {
 			for(let x=0; x<gameDefinition.layout.width; x++) {
-				s += "<span title="+reels[x][y]+" style='width:64px; height:64px; background-image:url("+game_id+".gif); background-position:"+(64*(reels[x][y]-1))+"px 0px; display:inline-block'></span>";
+				let id = reels[x][y], dx = 64 * (id - 1);
+				s += "<span title="+id+" style='width:64px; height:64px; background-image:url("+game_id+".gif); background-position:-"+dx+"px 0px; display:inline-block'></span>";
 			}
 			s += "<br>";
 		}
