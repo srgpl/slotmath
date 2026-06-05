@@ -1,10 +1,6 @@
 const library = require('./library.js');
 const server = require('./server.js');
 
-// Load library
-if(!library.load())
-	return console.log("Could not load library");
-
 // start the HTTP server
 server.start(8088);
 

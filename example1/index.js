@@ -5,12 +5,6 @@ const games = require('../games/games.js');
 // to simplify the code.
 //
 
-// Load probity
-if(!probity.load()) {
-	console.log("Could not load probity");
-	return;
-}
-
 // Enable logging
 let configuration_action = {
 	"action": "set_configuration",
@@ -55,17 +49,17 @@ let statistics = {
 	"counter": 0
 };
 
-// Request 10 game combinations
+// Request 10 game combinations (make 10 bets)
 for(var counter=0; counter < 10; counter++) {
 	const request_combination = {
 		"action": "get_combination",
 		"session_id": PlayerSessionID,
-		"bet_sum": BetSum
+		"bet_sum": BetSum // you may skip it, if its not changed since previous request
 	};
 	const result = probity.action(request_combination);
 	if(result && result.reply && result.reply.success) {
 		// count statistics
-		statistics.total_bet += result.reply.combination.actual.bet;
+		statistics.total_bet += result.reply.combination.actual.bet; // may be zero for bonus games (free spins)
 		statistics.total_win += result.reply.combination.actual.win;
 		statistics.counter++;
 		// show generated game combination
