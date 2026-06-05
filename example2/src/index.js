@@ -1,4 +1,3 @@
-const library = require('./library.js');
 const server = require('./server.js');
 
 // start the HTTP server
